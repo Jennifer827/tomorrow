@@ -1,0 +1,38 @@
+import requests
+
+def pokebyid(id):
+
+
+    res = requests.get(f"https://pokeapi.co/api/v2/pokemon/{id}")
+    res_another = requests.get(f"https://pokeapi.co/api/v2/pokemon-species/{id}")
+
+    res2 = res.json()
+    res2_another = res_another.json()
+
+    #print(type(res2))
+
+    #print(res2.keys())
+
+    id = res2['id']
+    height =res2['height']
+    weight = res2['weight']
+    kind_ja = res2_another['genera'][0]['genus']
+    kind_eng = res2_another['genera'][7]['genus']
+    mayu = res2['types'][0]['type']['name']
+    name_ja = res2_another['names'][0]['name']
+    name_eng = res2_another['names'][7]['name']
+
+    #print(id, height, weight, kind_ja, kind_eng, mayu, name_ja, name_eng)
+
+    img =  res2['sprites']['front_default']
+
+    #print(img)
+
+    #print(res2.keys())
+
+    ans = {"id" : id, "height": height, "weitht" : weight, "kind_ja" : kind_ja, "kind_eng" : kind_eng, "type" : mayu, "name_ja" : name_ja, "name_eng" : name_eng, "img" : img }
+
+    print(ans)
+    return ans
+
+pokebyid(25)
