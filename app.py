@@ -21,8 +21,8 @@ cur = conn.cursor()
  
 # SQL実行（tbl_sampleから全データを取得）
 # cur.execute('SELECT poke_id FROM zukan WHERE line_id =1234567890') 
-rows = cur.fetchall() 
-print(rows)
+# rows = cur.fetchall() 
+# print(rows)
  
 # cur.close() 
 # conn.close()
@@ -89,10 +89,9 @@ def add_firebase(event):
     # profile.user_idでid取得
     id=profile.user_id
     
-    
-    # cur.execute('INSERT INTO zukan (line_id, poke_id) VALUES ('{}', '0');')
 
-    sql = "INSERT INTO zukan (line_id, poke_id) VALUES ('500', '0');"
+
+    sql = f'INSERT INTO zukan (line_id, poke_id) VALUES ({id}, \'0\');'
     cur.execute(sql)
     
     
