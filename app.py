@@ -92,7 +92,7 @@ def add_firebase(event):
     
     # cur.execute('INSERT INTO zukan (line_id, poke_id) VALUES ('{}', '0');')
 
-    sql = "insert into zukan values(123, 2)"
+    sql = "INSERT INTO zukan (line_id, poke_id) VALUES ('500', '0');"
     cur.execute(sql)
     
     
