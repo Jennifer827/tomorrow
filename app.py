@@ -51,6 +51,11 @@ def handle_message(event):
         # TextSendMessage(text=event.message.text)
         ImageSendMessage(url,url)
         )
+def add_firebase(event):
+    profile = line_bot_api.get_profile(event.source.user_id)
+    # profile.user_idでid取得
+    id=profile.user_id
+    
 
 
 def getpokebyid(id):
