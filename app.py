@@ -1,4 +1,36 @@
 
+# DB
+import psycopg2
+ 
+# DB接続情報 
+DB_HOST = 'ec2-44-194-117-205.compute-1.amazonaws.com'
+DB_PORT = '5432'
+DB_NAME = 'dc7od5nmrchj7v'
+DB_USER = 'hhmknwhvgzumpl'
+DB_PASS = 'a73d257bee5fa277fae92b19c7cbca419da491070fbbac4e16ac00a99476f7c5'
+ 
+# DB接続関数 
+def get_connection(): 
+    return psycopg2.connect('postgresql://{user}:{password}@{host}:{port}/{dbname}'
+        .format( 
+            user=DB_USER, password=DB_PASS, host=DB_HOST, port=DB_PORT, dbname=DB_NAME 
+        ))
+ 
+conn = get_connection() 
+cur = conn.cursor()
+ 
+# SQL実行（tbl_sampleから全データを取得）
+# cur.execute('SELECT poke_id FROM zukan WHERE line_id =1234567890') 
+rows = cur.fetchall() 
+print(rows)
+ 
+# cur.close() 
+# conn.close()
+
+
+
+# Linebot
+
 import os,requests
 from flask import Flask, request, abort
 
@@ -16,6 +48,7 @@ app = Flask(__name__)
 
 YOUR_CHANNEL_ACCESS_TOKEN = os.environ["YOUR_CHANNEL_ACCESS_TOKEN"]
 YOUR_CHANNEL_SECRET = os.environ["YOUR_CHANNEL_SECRET"]
+
 
 line_bot_api = LineBotApi(YOUR_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(YOUR_CHANNEL_SECRET)
@@ -55,8 +88,9 @@ def add_firebase(event):
     profile = line_bot_api.get_profile(event.source.user_id)
     # profile.user_idでid取得
     id=profile.user_id
+    return id
+    # cur.execute('INSERT INTO zukan (line_id, poke_id) VALUES ('{}', '0');') 
     
-
 
 def getpokebyid(id):
     url =f' https://pokeapi.co/api/v2/pokemon/{id}'
@@ -67,3 +101,8 @@ def getpokebyid(id):
 
 if __name__ == "__main__":
     app.run()
+
+
+
+cur.close() 
+conn.close()
