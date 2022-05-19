@@ -88,8 +88,10 @@ def add_firebase(event):
     profile = line_bot_api.get_profile(event.source.user_id)
     # profile.user_idでid取得
     id=profile.user_id
-    return id
+    
+    
     # cur.execute('INSERT INTO zukan (line_id, poke_id) VALUES ('{}', '0');') 
+    line_bot_api.reply_message(event.reply_token, TextSendMessage(text={id}))
     
 
 def getpokebyid(id):
