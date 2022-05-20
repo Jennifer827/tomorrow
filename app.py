@@ -81,16 +81,26 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    cur.execute('INSERT INTO zukan (line_id, poke_id) VALUES (1, 987);')
-    conn.commit()
-    
+
     url = getpokebyid(event.message.text)
     print(event.source.user_id)
 
     cur.execute('INSERT INTO zukan (line_id, poke_id) VALUES (1, 987);')
-    # conn.commit()
-
+    conn.commit()
+    
     print('わーい')
+
+    with get_connection() as conn:
+        with conn.cursor(name='cs') as cur:
+            try:
+                sqlStr = "INSERT INTO zukan (line_id, poke_id) VALUES (1, 987);"
+                cur.execute(sqlStr)
+                # (mes,) = cur.fetchone()
+                # return mes
+            except:
+                mes = "exception"
+                return mes
+
     
     line_bot_api.reply_message(
         event.reply_token,
