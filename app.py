@@ -81,11 +81,14 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    cur.execute('INSERT INTO zukan (line_id, poke_id) VALUES (1, 987);')
+    conn.commit()
+    
     url = getpokebyid(event.message.text)
     print(event.source.user_id)
 
-    cur.execute('INSERT INTO zukan (line_id, poke_id) VALUES (1, 987);')
-    conn.commit()
+    # cur.execute('INSERT INTO zukan (line_id, poke_id) VALUES (1, 987);')
+    # conn.commit()
 
     print('わーい')
     
