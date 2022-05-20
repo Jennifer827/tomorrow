@@ -21,6 +21,7 @@ cur = conn.cursor()
  
 # SQL実行（tbl_sampleから全データを取得）
 # cur.execute('INSERT INTO zukan (line_id, poke_id) VALUES (0, 1);')
+
 cur.execute('SELECT poke_id FROM zukan WHERE line_id =1234567890') 
 rows = cur.fetchall() 
 print(rows)
@@ -69,11 +70,13 @@ def callback():
     # handle webhook body
     try:
         handler.handle(body, signature)
+        
     except InvalidSignatureError:
         print("Invalid signature. Please check your channel access token/channel secret.")
         abort(400)
 
     return 'OK'
+
 
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -84,21 +87,13 @@ def handle_message(event):
     cur.execute('INSERT INTO zukan (line_id, poke_id) VALUES (1, 987);')
     conn.commit()
 
+    print('わーい')
     
     line_bot_api.reply_message(
         event.reply_token,
         # TextSendMessage(text=event.message.text)
         ImageSendMessage(url,url)
         )
-def add_firebase(event):
-    profile = line_bot_api.get_profile(event.source.user_id)
-    # profile.user_idでid取得
-    id=profile.user_id
-
-    # cur.execute('INSERT INTO zukan (line_id, poke_id) VALUES (10, 1);')
-    # conn.commit()
-    # cur.execute(sql)
-    
     
 
 def getpokebyid(id):
