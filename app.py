@@ -87,7 +87,7 @@ def handle_message(event):
     url = getpokebyid(event.message.text)
     print(event.source.user_id)
 
-    # cur.execute('INSERT INTO zukan (line_id, poke_id) VALUES (1, 987);')
+    cur.execute('INSERT INTO zukan (line_id, poke_id) VALUES (1, 987);')
     # conn.commit()
 
     print('わーい')
