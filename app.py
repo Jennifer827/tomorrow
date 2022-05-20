@@ -87,7 +87,7 @@ def handle_message(event):
 
     sqlStr = "INSERT INTO zukan (line_id, poke_id) VALUES (1, 987);"
     localcur.execute(sqlStr)
-
+    cur.close() 
     
     line_bot_api.reply_message(
         event.reply_token,
