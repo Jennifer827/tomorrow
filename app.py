@@ -78,31 +78,15 @@ def callback():
     return 'OK'
 
 
-
+localcur = cur
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
 
     url = getpokebyid(event.message.text)
     print(event.source.user_id)
 
-    # cur.execute("INSERT INTO zukan (line_id, poke_id) VALUES (1, 987);")
-    # conn.commit()
-    
-    # print('わーい')
-
     sqlStr = "INSERT INTO zukan (line_id, poke_id) VALUES (1, 987);"
-    cur.execute(sqlStr)
-    
-    # with get_connection() as conn:
-    #     with conn.cursor(name='cs') as cur:
-    #         try:
-    #             sqlStr = "INSERT INTO zukan (line_id, poke_id) VALUES (1, 987);"
-    #             cur.execute(sqlStr)
-    #             # (mes,) = cur.fetchone()
-    #             # return mes
-    #         except:
-    #             mes = "exception"
-    #             return mes
+    localcur.execute(sqlStr)
 
     
     line_bot_api.reply_message(
