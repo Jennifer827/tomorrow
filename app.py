@@ -193,16 +193,16 @@ def handle_message(event):
         is_zukan = True
     else:
         message_to_send = f'''「ポケモンクイズ」：ポケモンクイズを出すよ！　日本語名で答えてね！\n「ヒント」：重さ・高さ・種類・英語名の中からランダムでヒントを出すよ！\n「答え」：答えを表示するよ！'''
-
+        line_bot_api.push_message(
+        id,
+        TextSendMessage(text=message_to_send)
+        )
 
     
     print(id)
     
 
-    line_bot_api.push_message(
-        id,
-        TextSendMessage(text=message_to_send)
-        )
+    
 
     print('lets send second message')
 
