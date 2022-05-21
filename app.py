@@ -1,9 +1,49 @@
 
+import psycopg2
+ 
+# DB接続情報 
+DB_HOST = 'ec2-44-194-117-205.compute-1.amazonaws.com'
+DB_PORT = '5432'
+DB_NAME = 'dc7od5nmrchj7v'
+DB_USER = 'hhmknwhvgzumpl'
+DB_PASS = 'a73d257bee5fa277fae92b19c7cbca419da491070fbbac4e16ac00a99476f7c5'
+ 
+# DB接続関数 
+def get_connection(): 
+    return psycopg2.connect('postgresql://{user}:{password}@{host}:{port}/{dbname}'
+        .format( 
+            user=DB_USER, password=DB_PASS, host=DB_HOST, port=DB_PORT, dbname=DB_NAME 
+        ))
+
+
+conn = get_connection() 
+cur = conn.cursor()
+ 
+# SQL実行（tbl_sampleから全データを取得）
+# cur.execute('INSERT INTO zukan (line_id, poke_id) VALUES (0, 1);')
+
+# cur.execute('SELECT poke_id FROM pokezukan WHERE line_id =1234567890') 
+# rows = cur.fetchall() 
+# print(rows)
+
+cur.close()
+# commitが必要
+# conn.commit()
+
+# cur.close() 
+# conn.close()
+
+
+# Linebot
+
+
+
 
 import os,requests,datetime,cv2,numpy as np
 
 from flask import Flask, request, abort
 from random import randint 
+
 
 
 from linebot import (
@@ -15,12 +55,15 @@ from linebot.exceptions import (
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,ImageSendMessage
 )
+from random import randint
+
+
+
 
 app = Flask(__name__)
 
 YOUR_CHANNEL_ACCESS_TOKEN = os.environ["YOUR_CHANNEL_ACCESS_TOKEN"]
 YOUR_CHANNEL_SECRET = os.environ["YOUR_CHANNEL_SECRET"]
-
 
 line_bot_api = LineBotApi(YOUR_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(YOUR_CHANNEL_SECRET)
@@ -40,7 +83,6 @@ def callback():
     # handle webhook body
     try:
         handler.handle(body, signature)
-        
     except InvalidSignatureError:
         print("Invalid signature. Please check your channel access token/channel secret.")
         abort(400)
@@ -48,11 +90,28 @@ def callback():
     return 'OK'
 
 
+
+
+def getrandom():
+
+
+    now = datetime.datetime.now()
+    y = now.year 
+    m = now.month 
+    h = now.hour
+    d = now.weekday()
+
+    return (y + m + h + d) % all_poke + 1
+
+
+
+
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     # data = getpokebyid(event.message.text)
     # print(event.source.user_id)
-    user_id = event.source.user_id
+
+    id = event.source.user_id
     
     message = event.message.text
     data = getpokebyid(getramdom())
@@ -77,57 +136,53 @@ def handle_message(event):
         message_to_send = f'''<英語>\n名前：{data["name_jp"]}\n種類：{data["kind_eng"]}\n<日本語>\n名前：{data["name_jp"]}\n種類：{data["kind_jp"]}\n重さ：{data["weight"]}\n高さ：{data["height"]} '''
     
     elif message == f'{data["name_jp"]}':
-        message_to_send = f'やった〜！\n {data["name_jp"]}を捕まえたぞ！'
+        message_to_send = f'やった〜！\n {data["name_jp"]}を捕まえたぞ!\n図鑑に登録しました。'
         is_correct = True
 
     elif message == '図鑑':
         makezukan()
         message_to_send = 'ポケモン図鑑を送るぞ！'
         is_zukan = True
-
-
-    sqlStr = "INSERT INTO zukan (line_id, poke_id) VALUES (1, 987);"
-    localcur.execute(sqlStr)
-    cur.close() 
-    
     else:
         message_to_send = f'''「ポケモンクイズ」：ポケモンクイズを出すよ！　日本語名で答えてね！\n「ヒント」：重さ・高さ・種類・英語名の中からランダムでヒントを出すよ！\n「答え」：答えを表示するよ！'''
 
 
+    
+    print(id)
+    
+
     line_bot_api.push_message(
-        user_id,
+        id,
         TextSendMessage(text=message_to_send)
         )
 
     print('lets send second message')
 
-    if is_correct:
-        print('I confirmed is_corrent is True')
+     if is_correct:
+        conn = get_connection() 
+        cur = conn.cursor()
+    
+        cur.execute("INSERT INTO pokezukan (line_id, poke_id) VALUES ('%s', '%s')"%(id,data["id"]))
+        cur.execute("SELECT poke_id FROM pokezukan WHERE line_id ='%s'"%(id)) 
+        rows = cur.fetchall() 
+        print(rows)
+        
+        cur.close() 
+        conn.commit()
+        conn.close() 
+        
+        line_bot_api.push_message(id, ImageSendMessage(data['img'], data['img']))
 
-        line_bot_api.push_message(
-            user_id,
-            ImageSendMessage(data['img'],data["img"])
-            )
     
     if is_zukan:
         zukan_url = 'https://fathomless-wildwood-25473.herokuapp.com/static/img/zukan.png'
         line_bot_api.push_message(
-            user_id,
+            id,
             ImageSendMessage(zukan_url,zukan_url)
             )
 
 
 
-def getramdom():
-
-
-    now = datetime.datetime.now()
-    y = now.year 
-    m = now.month 
-    h = now.hour
-    d = now.weekday()
-
-    return (y + m + h + d) % all_poke + 1
 
 
 
@@ -190,9 +245,9 @@ def makezukan():
     cv2.imwrite('static/img/zukan.png',ans)
     # return ans 
 
-if __name__ == "__main__":
-    app.run()
+
+ 
 
 
-cur.close() 
-conn.close()
+# cur.close() 
+# conn.close()
