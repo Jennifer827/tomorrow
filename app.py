@@ -121,47 +121,38 @@ def handle_message(event):
             TextSendMessage(text=message_to_send)
         )
     
-    elif message == 'ヒント':
-        n = randint(0,4)
-        if n == 0:
-            message_to_send = f'高さ：{data["height"]}'    
-            line_bot_api.push_message(
-                id,
-                TextSendMessage(text=message_to_send)
+    elif message == '小ヒント':
+        message_to_send = f'高さ：{data["height"]}\n重さ:{data["weight"]}'    
+        line_bot_api.push_message(
+            id,
+            TextSendMessage(text=message_to_send)
         )
-        if n == 1:
-            message_to_send = f'重さ：{data["weight"]}' 
-            line_bot_api.push_message(
-                id,
-                TextSendMessage(text=message_to_send)
-        )   
-        if n == 2:
-            message_to_send = f'名前：{data["name_eng"]}'  
-            line_bot_api.push_message(
-                id,
-                TextSendMessage(text=message_to_send)
+    
+    elif message == '中ヒント':
+        message_to_send = f'タイプ：{data["type"]}'   
+        line_bot_api.push_message(
+            id,
+            TextSendMessage(text=message_to_send)
             ) 
-        if n == 3:
-            message_to_send = f'タイプ：{data["type"]}'   
-            line_bot_api.push_message(
-                id,
-                TextSendMessage(text=message_to_send)
-        )
-        if n == 4:
-            makegray(data['id'])
-            message_to_send = f'こんなシルエットだよ！！'   
-            line_bot_api.push_message(
-                id,
-                TextSendMessage(text=message_to_send)
-             )
-            gray_url = app_url + '/static/gray.png'
-            line_bot_api.push_message(
-                id,
-                ImageSendMessage(gray_url,gray_url)
+    elif message == '大ヒント':
+        makegray(data['id'])
+        message_to_send = f'こんなシルエットだよ！！'   
+        line_bot_api.push_message(
+            id,
+            TextSendMessage(text=message_to_send)
             )
+        gray_url = app_url + '/static/gray.png'
+        line_bot_api.push_message(
+            id,
+            ImageSendMessage(gray_url,gray_url)
+        )
     
     elif message == '答え':
         message_to_send = f'''<英語>\n名前：{data["name_jp"]}\n種類：{data["kind_eng"]}\n<日本語>\n名前：{data["name_jp"]}\n種類：{data["kind_jp"]}\n重さ：{data["weight"]}\n高さ：{data["height"]} '''
+        line_bot_api.push_message(
+            id,
+            TextSendMessage(text=message_to_send)
+             )
     
     elif message == f'{data["name_jp"]}':
         message_to_send = f'やった〜！\n {data["name_jp"]}を捕まえたぞ!\n図鑑に登録しました。'
@@ -189,9 +180,14 @@ def handle_message(event):
     else:
         message_to_send = f'''「ポケモンクイズ」：ポケモンクイズを出すよ！　日本語名で答えてね！\n「ヒント」：重さ・高さ・種類・英語名の中からランダムでヒントを出すよ！\n「答え」：答えを表示するよ！'''
         line_bot_api.push_message(
-        id,
-        TextSendMessage(text=message_to_send)
-        )
+
+            id,
+            TextSendMessage(text=message_to_send)
+            )
+
+
+    
+    
 
     
     print(id)
