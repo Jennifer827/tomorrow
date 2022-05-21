@@ -90,15 +90,30 @@ def callback():
 def getrandom():
 
 
+    # now = datetime.datetime.now()
+    # y = now.year 
+    # m = now.month 
+    # h = now.hour
+    # d = now.weekday()
+    # n = now.minute
+
+    # return (y + m + h + d) % all_poke + 1
+    with open('id.txt') as f:
+        s = f.read()
+        print(s)
+        s = int(s)
+    
+    return s
+
+def get_realrandom():
     now = datetime.datetime.now()
     y = now.year 
     m = now.month 
     h = now.hour
     d = now.weekday()
+    n = now.minute
 
-    # return (y + m + h + d) % all_poke + 1
-    return 150
-
+    return str((n + y + m + h + d) % all_poke + 1)
 
 
 
@@ -177,6 +192,12 @@ def handle_message(event):
              )
         
         is_zukan = True
+
+    elif message == 'omni_broadcast':
+        with open('id.txt',mode='w') as f:
+            f.write(get_realrandom())
+
+
     else:
         message_to_send = f'''「ポケモンクイズ」：ポケモンクイズを出すよ！　日本語名で答えてね！\n「ヒント」：重さ・高さ・種類・英語名の中からランダムでヒントを出すよ！\n「答え」：答えを表示するよ！'''
         line_bot_api.push_message(
