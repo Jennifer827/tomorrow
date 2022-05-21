@@ -207,8 +207,11 @@ def handle_message(event):
 
        cur.execute("INSERT INTO pokezukan (line_id, poke_id) VALUES ('%s', '%s')"%(id,data["id"]))
        cur.execute("SELECT poke_id FROM pokezukan WHERE line_id ='%s'"%(id)) 
-       rows = cur.fetchall() 
+       
+       rows0 = cur.fetchall()
+       rows=[i[0] for i in rows0] 
        print(rows)
+
 
        cur.close() 
        conn.commit()
@@ -260,9 +263,11 @@ def makezukan():
     cur.execute("SELECT poke_id FROM pokezukan WHERE line_id ='%s'"%(id)) 
 
     # rowsにpoke_idが入ってます
-    rows = cur.fetchall() 
+    rows0 = cur.fetchall()
+    rows=[i[0] for i in rows0] 
     print(rows)
-
+       
+       
     cur.close() 
     conn.commit()
     conn.close() 
