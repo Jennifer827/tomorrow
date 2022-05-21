@@ -210,6 +210,21 @@ def getpokebyid(id):
     return ans
 
 def makezukan():
+    # line_idからpoke_idの配列を取得
+    conn = get_connection() 
+    cur = conn.cursor()
+
+    cur.execute("SELECT poke_id FROM pokezukan WHERE line_id ='%s'"%(id)) 
+
+    # rowsにpoke_idが入ってます
+    rows = cur.fetchall() 
+    print(rows)
+
+    cur.close() 
+    conn.commit()
+    conn.close() 
+    
+    
     w = 8
     all_poke = 151
 
