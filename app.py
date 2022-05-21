@@ -284,7 +284,7 @@ def makezukan():
     l1 = []
     l2 = []
     for i in range(1,152):
-        if i in rows:
+        if str(i) in rows:
             img =  cv2.imread(f'static/img/{i}.png')
         else:
             img = question
