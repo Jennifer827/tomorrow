@@ -114,7 +114,7 @@ def handle_message(event):
     id = event.source.user_id
     
     message = event.message.text
-    data = getpokebyid(getramdom())
+    data = getpokebyid(getrandom())
     is_correct = False
     is_zukan = False
 
@@ -174,7 +174,7 @@ def handle_message(event):
        line_bot_api.push_message(id, ImageSendMessage(data['img'], data['img']))
 
 
-   if is_zukan:
+    if is_zukan:
        zukan_url = 'https://fathomless-wildwood-25473.herokuapp.com/static/img/zukan.png'
        line_bot_api.push_message(
            id,
