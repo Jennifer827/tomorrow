@@ -158,28 +158,28 @@ def handle_message(event):
 
     print('lets send second message')
 
-     if is_correct:
-        conn = get_connection() 
-        cur = conn.cursor()
-    
-        cur.execute("INSERT INTO pokezukan (line_id, poke_id) VALUES ('%s', '%s')"%(id,data["id"]))
-        cur.execute("SELECT poke_id FROM pokezukan WHERE line_id ='%s'"%(id)) 
-        rows = cur.fetchall() 
-        print(rows)
-        
-        cur.close() 
-        conn.commit()
-        conn.close() 
-        
-        line_bot_api.push_message(id, ImageSendMessage(data['img'], data['img']))
+    if is_correct:
+       conn = get_connection() 
+       cur = conn.cursor()
 
-    
-    if is_zukan:
-        zukan_url = 'https://fathomless-wildwood-25473.herokuapp.com/static/img/zukan.png'
-        line_bot_api.push_message(
-            id,
-            ImageSendMessage(zukan_url,zukan_url)
-            )
+       cur.execute("INSERT INTO pokezukan (line_id, poke_id) VALUES ('%s', '%s')"%(id,data["id"]))
+       cur.execute("SELECT poke_id FROM pokezukan WHERE line_id ='%s'"%(id)) 
+       rows = cur.fetchall() 
+       print(rows)
+
+       cur.close() 
+       conn.commit()
+       conn.close() 
+
+       line_bot_api.push_message(id, ImageSendMessage(data['img'], data['img']))
+
+
+   if is_zukan:
+       zukan_url = 'https://fathomless-wildwood-25473.herokuapp.com/static/img/zukan.png'
+       line_bot_api.push_message(
+           id,
+           ImageSendMessage(zukan_url,zukan_url)
+           )
 
 
 
@@ -204,7 +204,7 @@ def getpokebyid(id):
     img =  res['sprites']['front_default']
     type = res['types'][0]['type']['name']
 
-    ans = {'weight':weight,'height':height,'kind_eng':kind_eng,'name_eng':name_eng,'kind_jp':kind_jp,'name_jp':name_jp,'type':type,'img':img}
+    ans = {'weight':weight,'height':height,'kind_eng':kind_eng,'name_eng':name_eng,'kind_jp':kind_jp,'name_jp':name_jp,'type':type,'img':img,'id':id}
 
     print(ans)
     return ans
