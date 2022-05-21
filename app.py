@@ -222,7 +222,6 @@ def handle_message(event):
        conn.commit()
        conn.close() 
 
-       line_bot_api.push_message(id, ImageSendMessage(data['img'], data['img']))
 
 
     if is_zukan:
