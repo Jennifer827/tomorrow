@@ -1,5 +1,7 @@
 
+
 import os,requests,datetime,cv2,numpy as np
+
 from flask import Flask, request, abort
 from random import randint 
 
@@ -19,6 +21,7 @@ app = Flask(__name__)
 YOUR_CHANNEL_ACCESS_TOKEN = os.environ["YOUR_CHANNEL_ACCESS_TOKEN"]
 YOUR_CHANNEL_SECRET = os.environ["YOUR_CHANNEL_SECRET"]
 
+
 line_bot_api = LineBotApi(YOUR_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(YOUR_CHANNEL_SECRET)
 
@@ -37,12 +40,12 @@ def callback():
     # handle webhook body
     try:
         handler.handle(body, signature)
+        
     except InvalidSignatureError:
         print("Invalid signature. Please check your channel access token/channel secret.")
         abort(400)
 
     return 'OK'
-
 
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -82,6 +85,10 @@ def handle_message(event):
         message_to_send = 'ポケモン図鑑を送るぞ！'
         is_zukan = True
 
+
+    sqlStr = "INSERT INTO zukan (line_id, poke_id) VALUES (1, 987);"
+    localcur.execute(sqlStr)
+    cur.close() 
     
     else:
         message_to_send = f'''「ポケモンクイズ」：ポケモンクイズを出すよ！　日本語名で答えてね！\n「ヒント」：重さ・高さ・種類・英語名の中からランダムでヒントを出すよ！\n「答え」：答えを表示するよ！'''
@@ -91,6 +98,7 @@ def handle_message(event):
         user_id,
         TextSendMessage(text=message_to_send)
         )
+
     print('lets send second message')
 
     if is_correct:
@@ -120,7 +128,6 @@ def getramdom():
     d = now.weekday()
 
     return (y + m + h + d) % all_poke + 1
-
 
 
 
@@ -185,3 +192,7 @@ def makezukan():
 
 if __name__ == "__main__":
     app.run()
+
+
+cur.close() 
+conn.close()
