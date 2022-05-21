@@ -167,6 +167,10 @@ def handle_message(event):
     
     elif message == '答え':
         message_to_send = f'''<英語>\n名前：{data["name_jp"]}\n種類：{data["kind_eng"]}\n<日本語>\n名前：{data["name_jp"]}\n種類：{data["kind_jp"]}\n重さ：{data["weight"]}\n高さ：{data["height"]} '''
+        line_bot_api.push_message(
+            id,
+            TextSendMessage(text=message_to_send)
+             )
     
     elif message == f'{data["name_jp"]}':
         message_to_send = f'やった〜！\n {data["name_jp"]}を捕まえたぞ!\n図鑑に登録しました。'
