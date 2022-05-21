@@ -15,29 +15,23 @@ def get_connection():
             user=DB_USER, password=DB_PASS, host=DB_HOST, port=DB_PORT, dbname=DB_NAME 
         ))
 
-
 conn = get_connection() 
 cur = conn.cursor()
  
-# SQL実行（tbl_sampleから全データを取得）
-# cur.execute('INSERT INTO zukan (line_id, poke_id) VALUES (0, 1);')
+# # SQL実行（tbl_sampleから全データを取得）
+cur.execute('INSERT INTO pokezukan (line_id, poke_id) VALUES (0, 1)')
 
 # cur.execute('SELECT poke_id FROM pokezukan WHERE line_id =1234567890') 
 # rows = cur.fetchall() 
 # print(rows)
 
 cur.close()
-# commitが必要
-# conn.commit()
+conn.commit()
+conn.close()
 
-# cur.close() 
-# conn.close()
 
 
 # Linebot
-
-
-
 
 import os,requests,datetime,cv2,numpy as np
 
@@ -69,7 +63,7 @@ line_bot_api = LineBotApi(YOUR_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(YOUR_CHANNEL_SECRET)
 
 all_poke = 151
-app_url = 'https://fathomless-wildwood-25473.herokuapp.com'
+app_url = 'https://pokemonbot00.herokuapp.com'
 
 
 @app.route("/callback", methods=['POST'])
@@ -102,7 +96,8 @@ def getrandom():
     h = now.hour
     d = now.weekday()
 
-    return (y + m + h + d) % all_poke + 1
+    # return (y + m + h + d) % all_poke + 1
+    return 150
 
 
 
@@ -167,10 +162,6 @@ def handle_message(event):
     
     elif message == '答え':
         message_to_send = f'''<英語>\n名前：{data["name_jp"]}\n種類：{data["kind_eng"]}\n<日本語>\n名前：{data["name_jp"]}\n種類：{data["kind_jp"]}\n重さ：{data["weight"]}\n高さ：{data["height"]} '''
-        line_bot_api.push_message(
-            id,
-            TextSendMessage(text=message_to_send)
-             )
     
     elif message == f'{data["name_jp"]}':
         message_to_send = f'やった〜！\n {data["name_jp"]}を捕まえたぞ!\n図鑑に登録しました。'
@@ -187,7 +178,7 @@ def handle_message(event):
         is_correct = True
 
     elif message == '図鑑':
-        makezukan()
+        makezukan(id)
         message_to_send = 'ポケモン図鑑を送るぞ！'
         line_bot_api.push_message(
             id,
@@ -204,9 +195,6 @@ def handle_message(event):
 
     
     print(id)
-    
-
-    
 
     print('lets send second message')
 
@@ -226,6 +214,7 @@ def handle_message(event):
        conn.commit()
        conn.close() 
 
+       line_bot_api.push_message(id, ImageSendMessage(data['img'], data['img']))
 
 
     if is_zukan:
@@ -263,23 +252,22 @@ def getpokebyid(id):
     print(ans)
     return ans
 
-def makezukan():
-    # line_idからpoke_idの配列を取得
+def makezukan(id):
+
+    
     conn = get_connection() 
     cur = conn.cursor()
 
     cur.execute("SELECT poke_id FROM pokezukan WHERE line_id ='%s'"%(id)) 
-
-    # rowsにpoke_idが入ってます
+       
     rows0 = cur.fetchall()
     rows=[i[0] for i in rows0] 
     print(rows)
-       
-       
+
+
     cur.close() 
     conn.commit()
     conn.close() 
-    
     
     w = 8
     all_poke = 151
@@ -291,8 +279,6 @@ def makezukan():
     blank = blank.astype(np.int32)
     
     question = cv2.resize(cv2.imread('static/img/question.png'),dsize=(height,width))
-
-
 
     l1 = []
     l2 = []
