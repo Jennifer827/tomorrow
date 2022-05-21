@@ -1,3 +1,4 @@
+
 import psycopg2
  
 # DB接続情報 
@@ -36,9 +37,14 @@ cur.close()
 # Linebot
 
 
-import os,requests,datetime
+
+
+import os,requests,datetime,cv2,numpy as np
+
 from flask import Flask, request, abort
 from random import randint 
+
+
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -105,45 +111,58 @@ def handle_message(event):
     # data = getpokebyid(event.message.text)
     # print(event.source.user_id)
 
-    ans = pokebyid(getrandom())
-
-    is_correct = False
-    
     id = event.source.user_id
+    
+    message = event.message.text
+    data = getpokebyid(getramdom())
+    is_correct = False
+    is_zukan = False
+
+    if message == 'ポケモンクイズ':
+        message_to_send = f'''{data["name_eng"]}\n{data["kind_eng"]}'''
+    
+    elif message == 'ヒント':
+        n = randint(0,3)
+        if n == 0:
+            message_to_send = f'高さ：{data["height"]}'    
+        if n == 1:
+            message_to_send = f'重さ：{data["weight"]}'    
+        if n == 2:
+            message_to_send = f'名前：{data["name_eng"]}'   
+        if n == 3:
+            message_to_send = f'タイプ：{data["type"]}'   
+    
+    elif message == '答え':
+        message_to_send = f'''<英語>\n名前：{data["name_jp"]}\n種類：{data["kind_eng"]}\n<日本語>\n名前：{data["name_jp"]}\n種類：{data["kind_jp"]}\n重さ：{data["weight"]}\n高さ：{data["height"]} '''
+    
+    elif message == f'{data["name_jp"]}':
+        message_to_send = f'やった〜！\n {data["name_jp"]}を捕まえたぞ!\n図鑑に登録しました。'
+        is_correct = True
+
+    elif message == '図鑑':
+        makezukan()
+        message_to_send = 'ポケモン図鑑を送るぞ！'
+        is_zukan = True
+    else:
+        message_to_send = f'''「ポケモンクイズ」：ポケモンクイズを出すよ！　日本語名で答えてね！\n「ヒント」：重さ・高さ・種類・英語名の中からランダムでヒントを出すよ！\n「答え」：答えを表示するよ！'''
+
+
+    
     print(id)
     
 
-    if event.message.text == "ポケモンクイズ":
-        message = f"{ans['name_eng']}\n{ans['kind_eng']}"
-        
-    elif event.message.text == "ヒント":
-        n = randint(0,3)
-        if n == 0:
-            message = f" 番号：{ans['id']}"
-        if n == 1:
-            message = f"たかさ：{ans['height']}(m)"
-        if n == 2:
-            message = f"おもさ：{ans['weight']}(kg)"
-        if n == 3:
-            message = f"英語の名前{ans['name_eng']}"
+    line_bot_api.push_message(
+        id,
+        TextSendMessage(text=message_to_send)
+        )
 
-    elif event.message.text == "こたえ":
-        message = f"<英語>\n名前:{ans['name_eng']}\n種類:{ans['kind_eng']}\n<日本語>\n名前:{ans['name_ja']}\n種類:{ans['kind_ja']}\n重さ:{ans['weight']}(kg)\n高さ:{ans['height']}(kg) "
+    print('lets send second message')
 
-    elif event.message.text == f"{ans['name_ja']}":
-        message = f"やったー！{ans['name_ja']}を捕まえたぞ！図鑑に登録しました。"
-        is_correct = True
-
-    else:
-        message = "「ポケモンクイズ：ポケモンクイズを出すよ！\n「ヒント」：重さ・高さ・種類・英語名のなかからランダムでヒントを出すよ！\n「こたえ」：こたえを表示するよ！"
-
-    line_bot_api.push_message(id, TextSendMessage(message))
-
-    if is_correct:
+     if is_correct:
         conn = get_connection() 
         cur = conn.cursor()
     
-        cur.execute("INSERT INTO pokezukan (line_id, poke_id) VALUES ('%s', '%s')"%(id,ans["id"]))
+        cur.execute("INSERT INTO pokezukan (line_id, poke_id) VALUES ('%s', '%s')"%(id,data["id"]))
         cur.execute("SELECT poke_id FROM pokezukan WHERE line_id ='%s'"%(id)) 
         rows = cur.fetchall() 
         print(rows)
@@ -152,47 +171,82 @@ def handle_message(event):
         conn.commit()
         conn.close() 
         
-        line_bot_api.push_message(id, ImageSendMessage(ans['img'], ans['img']))
+        line_bot_api.push_message(id, ImageSendMessage(data['img'], data['img']))
+
+    
+    if is_zukan:
+        zukan_url = 'https://fathomless-wildwood-25473.herokuapp.com/static/img/zukan.png'
+        line_bot_api.push_message(
+            id,
+            ImageSendMessage(zukan_url,zukan_url)
+            )
 
 
 
 
-def pokebyid(id):
 
-    res = requests.get(f"https://pokeapi.co/api/v2/pokemon/{id}")
-    res_another = requests.get(f"https://pokeapi.co/api/v2/pokemon-species/{id}")
 
-    res2 = res.json()
-    res2_another = res_another.json()
+def getpokebyid(id):
+    eng = 7
+    jp = 0
 
-    #print(type(res2))
+    url =f' https://pokeapi.co/api/v2/pokemon/{id}'
+    res = requests.get(url).json()
+    url2 = f'https://pokeapi.co/api/v2/pokemon-species/{id}'
+    res2 = requests.get(url2).json()
 
-    #print(res2.keys())
+    weight = res['weight']
+    height = res['height']
+    kind_eng = res2['genera'][eng]['genus']
+    name_eng = res2['names'][eng]['name']
+    kind_jp = res2['genera'][jp]['genus']
+    name_jp = res2['names'][jp]['name']
+    img =  res['sprites']['front_default']
+    type = res['types'][0]['type']['name']
 
-    id = res2['id']
-    height =res2['height'] / 10
-    weight = res2['weight'] / 100
-    kind_ja = res2_another['genera'][0]['genus']
-    kind_eng = res2_another['genera'][7]['genus']
-    mayu = res2['types'][0]['type']['name']
-    name_ja = res2_another['names'][0]['name']
-    name_eng = res2_another['names'][7]['name']
-
-    #print(id, height, weight, kind_ja, kind_eng, mayu, name_ja, name_eng)
-
-    img =  res2['sprites']['front_default']
-
-    #print(img)
-
-    #print(res2.keys())
-
-    ans = {"id" : id, "height": height, "weight" : weight, "kind_ja" : kind_ja, "kind_eng" : kind_eng, "type" : mayu, "name_ja" : name_ja, "name_eng" : name_eng, "img" : img }
+    ans = {'weight':weight,'height':height,'kind_eng':kind_eng,'name_eng':name_eng,'kind_jp':kind_jp,'name_jp':name_jp,'type':type,'img':img}
 
     print(ans)
     return ans
 
-pokebyid(25)
+def makezukan():
+    w = 8
+    all_poke = 151
 
+    # #ブランク画像
+    height,width = cv2.imread('static/img/1.png').shape[0:2]
+    blank = np.zeros((height, width, 3))
+    blank = blank.astype(np.int32)
+    
+    question = cv2.resize(cv2.imread('static/img/question.png'),dsize=(height,width))
+
+
+
+    l1 = []
+    l2 = []
+    for i in range(1,152):
+        if i % 5 == 0:
+            img = question
+        else:
+            img =  cv2.imread(f'static/img/{i}.png')
+        l2.append(np.array(img).astype(np.int32))
+
+        if i % w == 0 or i == all_poke:
+            while len(l2) < w:
+                l2.append(blank)
+
+            line = cv2.hconcat(l2)
+            l1.append(line)
+
+            l2 = []
+
+    ans = cv2.vconcat(l1)
+
+    cv2.imwrite('static/img/zukan.png',ans)
+    # return ans 
+
+
+ 
 
 
 # cur.close() 

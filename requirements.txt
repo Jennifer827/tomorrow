@@ -3,3 +3,6 @@ line-bot-sdk==2.2.1
 gunicorn==20.1.0
 requests==2.26.0
 psycopg2
+opencv-python--headless==4.5.1.48
+numpy==1.21.4
+
