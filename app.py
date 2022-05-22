@@ -15,20 +15,6 @@ def get_connection():
             user=DB_USER, password=DB_PASS, host=DB_HOST, port=DB_PORT, dbname=DB_NAME 
         ))
 
-conn = get_connection() 
-cur = conn.cursor()
- 
-# # SQL実行（tbl_sampleから全データを取得）
-cur.execute('INSERT INTO pokezukan (line_id, poke_id) VALUES (0, 1)')
-
-# cur.execute('SELECT poke_id FROM pokezukan WHERE line_id =1234567890') 
-# rows = cur.fetchall() 
-# print(rows)
-
-cur.close()
-conn.commit()
-conn.close()
-
 
 
 # Linebot
@@ -129,6 +115,9 @@ def handle_message(event):
     is_correct = False
     is_zukan = False
 
+    height=data["height"]/10
+    weight=data["weight"]/10
+
     if message == 'ポケモンクイズ':
         message_to_send = f'''{data["name_eng"]}\n{data["kind_eng"]}'''
         line_bot_api.push_message(
@@ -137,7 +126,7 @@ def handle_message(event):
         )
     
     elif message == '小ヒント':
-        message_to_send = f'高さ：{data["height"]}\n重さ:{data["weight"]}'    
+        message_to_send = f'高さ：{height}m\n重さ：{weight}kg'    
         line_bot_api.push_message(
             id,
             TextSendMessage(text=message_to_send)
@@ -163,29 +152,29 @@ def handle_message(event):
         )
     
     elif message == '答え':
-        message_to_send = f'''<英語>\n名前：{data["name_jp"]}\n種類：{data["kind_eng"]}\n<日本語>\n名前：{data["name_jp"]}\n種類：{data["kind_jp"]}\n重さ：{data["weight"]}\n高さ：{data["height"]} '''
+        message_to_send = f'''<英語>\n名前：{data["name_eng"]}\n種類：{data["kind_eng"]}\n<日本語>\n名前：{data["name_jp"]}\n種類：{data["kind_jp"]}\n重さ：{weight}kg\n高さ：{height}m '''
         line_bot_api.push_message(
             id,
             TextSendMessage(text=message_to_send)
              )
     
     elif message == f'{data["name_jp"]}':
-        message_to_send = f'やった〜！\n {data["name_jp"]}を捕まえたぞ!\n図鑑に登録しました。'
+        message_to_send = f'やった〜！！！\n{data["name_jp"]}を捕まえたぞ！\n図鑑に登録しました。\n\n「図鑑」と送信してみてね！'
         line_bot_api.push_message(
             id,
             TextSendMessage(text=message_to_send)
              )
         
-        line_bot_api.push_message(
-            id,
-            ImageSendMessage(data['img'],data["img"])
-            )
+        # line_bot_api.push_message(
+        #     id,
+        #     ImageSendMessage(data['img'],data["img"])
+        #     )
 
         is_correct = True
 
     elif message == '図鑑':
         makezukan(id)
-        message_to_send = 'ポケモン図鑑を送るぞ！'
+        message_to_send = '図鑑を送るよ！'
         line_bot_api.push_message(
             id,
             TextSendMessage(text=message_to_send)
@@ -194,21 +183,22 @@ def handle_message(event):
         is_zukan = True
 
     elif message == 'omni_broadcast':
+        message_to_send = '問題が変わるよ！'
+        line_bot_api.push_message(
+            id,
+            TextSendMessage(text=message_to_send)
+             )
         with open('id.txt',mode='w') as f:
             f.write(get_realrandom())
 
 
     else:
-        message_to_send = f'''「ポケモンクイズ」：ポケモンクイズを出すよ！　日本語名で答えてね！\n「ヒント」：重さ・高さ・種類・英語名の中からランダムでヒントを出すよ！\n「答え」：答えを表示するよ！'''
+        message_to_send = f'''「ポケモンクイズ」：ポケモンクイズを出すよ！　日本語名で答えてね！\n\n 分からない場合は「小ヒント」「中ヒント」「大ヒント」を聞いてみてね！\n\n 「図鑑」：自分の図鑑を表示するよ\n\n「答え」：答えを表示するよ！\n\n\n(クイズ中の場合は「不正解」だよ！！)'''
         line_bot_api.push_message(
 
             id,
             TextSendMessage(text=message_to_send)
             )
-
-
-    
-    
 
     
     print(id)
@@ -240,11 +230,6 @@ def handle_message(event):
            id,
            ImageSendMessage(zukan_url,zukan_url)
            )
-
-
-
-
-
 
 def getpokebyid(id):
     eng = 7
@@ -334,8 +319,3 @@ def makegray(id):
     cv2.imwrite('static/gray.png',img)
 
 
- 
-
-
-# cur.close() 
-# conn.close()
