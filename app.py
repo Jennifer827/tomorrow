@@ -2,11 +2,11 @@
 import psycopg2
  
 # DB接続情報 
-DB_HOST = 'ec2-44-194-117-205.compute-1.amazonaws.com'
-DB_PORT = '5432'
-DB_NAME = 'dc7od5nmrchj7v'
-DB_USER = 'hhmknwhvgzumpl'
-DB_PASS = 'a73d257bee5fa277fae92b19c7cbca419da491070fbbac4e16ac00a99476f7c5'
+DB_HOST = os.environ['DB_HOST']
+DB_PORT = os.environ['DB_PORT']
+DB_NAME = os.environ['DN_NAME']
+DB_USER = os.environ['DB_USER']
+DB_PASS = os.environ['DB_PASS']
  
 # DB接続関数 
 def get_connection(): 
